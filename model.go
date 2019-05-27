@@ -8,11 +8,13 @@ import (
 )
 
 type Areoplane struct {
+    index int
 	team  int
 	place int
 }
 
 type Player struct {
+    index int
 	aps       [4]Areoplane
 	finishNum int
 	isBot     bool
@@ -36,10 +38,20 @@ func (p *Areoplane) getGlobalLoc() (globalLoc int) {
 	return
 }
 
-func cmdRunner(cmd string) int {
-
+func (p *Areoplane) printStatus() {
+	fmt.Printf("\tPlane %d\tlocal place %d\tglobal place %d\n", p.index, p.place, p.getGlobalLoc())
 }
 
+func (p *Player) printStatus() {
+    fmt.Printf("Team %d:\n", p.index)
+    for i := 0; i<4 ; i++ {
+        p.aps[i].printStatus()
+    }
+	fmt.Printf("Finish: %d\n", p.finishNum)
+}
+func (p *Areoplane) move(step int) (err int) {
+    return 0
+}
 func start() {
 	fmt.Println("Game Start")
 	fmt.Println("Init data")
@@ -50,9 +62,11 @@ func start() {
 	for i := 0; i < 4; i++ {
 		players[i].finishNum = 0
 		players[i].isBot = false
+        players[i].index = i
 		for j := 0; j < 4; j++ {
 			players[i].aps[j].team = i
 			players[i].aps[j].place = 0
+			players[i].aps[j].index = j
 		}
 	}
 	fmt.Println("Init Over")
@@ -98,11 +112,11 @@ func start() {
 				} else {
 					var moveId int
 					for {
-						for j := 0; j < 4; j++ {
-							fmt.Printf("\tPlane %d local place %d\tglobal place %d\n", j, players[turn].aps[j].place, players[turn].aps[j].getGlobalLoc())
-						}
+                        players[turn].printStatus()
 						fmt.Print("Input plane's id to move:")
 						fmt.Scanf("%d", &moveId)
+                        status := players[turn].aps[moveId].move(step)
+                        status += 0
 						if moveId < 0 || moveId > 3 {
 							fmt.Println("Please input correct id(0 to 3)")
 							continue
@@ -177,11 +191,7 @@ func start() {
 				break
 			case "p":
 				for i := 0; i < 4; i++ {
-					fmt.Printf("Team %d:\n", i)
-					for j := 0; j < 4; j++ {
-						fmt.Printf("\tPlane %d local place %d\tglobal place %d\n", j, players[i].aps[j].place, players[i].aps[j].getGlobalLoc())
-					}
-					fmt.Printf("Finish: %d\n", players[i].finishNum)
+					players[i].printStatus()
 				}
 				break
 			default:
